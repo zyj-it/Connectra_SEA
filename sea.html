@@ -61,9 +61,7 @@
     .active { color: #34d399; }
     .inactive { color: #9ca3af; }
 
-    .alert {
-      color: #facc15;
-    }
+    .alert { color: #facc15; }
 
     .watts {
       margin-top: 10px;
@@ -129,9 +127,20 @@
 
 <script>
   const sockets = [
-    { id: 1, name: "Living Room Outlet", status: true, watts: 120, tempAlert: false },
-    { id: 2, name: "Kitchen Outlet", status: false, watts: 0, tempAlert: false },
-    { id: 3, name: "Bedroom Outlet", status: true, watts: 65, tempAlert: true }
+    { id: 1, name: "Living Room Extension Outlet", status: true, watts: 120, tempAlert: false },
+    { id: 2, name: "TV Area", status: true, watts: 90, tempAlert: false },
+    { id: 3, name: "Aircon", status: true, watts: 850, tempAlert: true },
+    { id: 4, name: "Dining Area", status: false, watts: 0, tempAlert: false },
+
+    { id: 5, name: "Microwave", status: false, watts: 0, tempAlert: false },
+    { id: 6, name: "Kitchen Socket 1", status: true, watts: 300, tempAlert: false },
+
+    { id: 7, name: "Living Room Socket 2", status: false, watts: 0, tempAlert: false },
+
+    { id: 8, name: "Bedroom Left Socket", status: true, watts: 60, tempAlert: false },
+    { id: 9, name: "Bedroom Right Socket", status: false, watts: 0, tempAlert: false },
+
+    { id: 10, name: "Bedroom 2 Left Socket", status: true, watts: 75, tempAlert: false }
   ];
 
   const container = document.getElementById("sockets");
@@ -182,7 +191,6 @@
     renderSockets();
   }
 
-  // Chart
   const ctx = document.getElementById("usageChart").getContext("2d");
   const chart = new Chart(ctx, {
     type: "line",
@@ -209,6 +217,7 @@
   });
 
   function updateChart() {
+    chart.data.labels = sockets.map(s => s.name);
     chart.data.datasets[0].data = sockets.map(s => s.watts);
     chart.update();
   }
@@ -218,3 +227,4 @@
 </script>
 </body>
 </html>
+
