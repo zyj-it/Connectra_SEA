@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Connectra Dashboard</title>
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Feather Icons -->
+  <script src="https://unpkg.com/feather-icons"></script>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(to bottom, #0f172a, #1e3a8a);
+      color: white;
+      padding: 20px;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      margin-bottom: 30px;
+    }
+
+    .logo {
+      width: 60px;
+      height: 60px;
+      background: #1e40af;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      font-weight: bold;
+      font-size: 20px;
+    }
+
+    .socket-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    .socket-card {
+      background: rgba(30, 58, 138, 0.6);
+      border-radius: 25px;
+      padding: 20px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
+
+    .socket-header {
+      display: flex;
+      justify-content: space-between;
+      font-weight: bold;
+    }
+
+    .active { color: #34d399; }
+    .inactive { color: #9ca3af; }
+
+    .alert {
+      color: #facc15;
+    }
+
+    .watts {
+      margin-top: 10px;
+      color: #06b6d4;
+      font-size: 14px;
+    }
+
+    .toggle-btn {
+      margin-top: 15px;
+      width: 100%;
+      padding: 10px;
+      border-radius: 20px;
+      border: none;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .toggle-on { background: #34d399; }
+    .toggle-off { background: #4b5563; }
+
+    .schedule {
+      margin-top: 8px;
+      font-size: 12px;
+      color: #bfdbfe;
+      display: flex;
+      gap: 5px;
+      align-items: center;
+    }
+
+    canvas {
+      background: rgba(30, 58, 138, 0.5);
+      border-radius: 20px;
+      padding: 15px;
+    }
+
+    footer {
+      text-align: center;
+      margin-top: 30px;
+      font-size: 12px;
+      color: #93c5fd;
+    }
+  </style>
+</head>
+
+<body>
+<header>
+  <div class="logo">SEA</div>
+  <div>
+    <h1>Connectra</h1>
+    <p style="color:#bfdbfe;margin:0;">
+      by Eco Chambers · Smart Electric Appliances
+    </p>
+  </div>
+</header>
+
+<div class="socket-container" id="sockets"></div>
+
+<canvas id="usageChart"></canvas>
+
+<footer>
+  © <span id="year"></span> Eco Chambers · Connectra Smart Energy Platform
+</footer>
+
+<script>
+  const sockets = [
+    { id: 1, name: "Living Room Outlet", status: true, watts: 120, tempAlert: false },
+    { id: 2, name: "Kitchen Outlet", status: false, watts: 0, tempAlert: false },
+    { id: 3, name: "Bedroom Outlet", status: true, watts: 65, tempAlert: true }
+  ];
+
+  const container = document.getElementById("sockets");
+
+  function renderSockets() {
+    container.innerHTML = "";
+
+    sockets.forEach(socket => {
+      const card = document.createElement("div");
+      card.className = "socket-card";
+
+      card.innerHTML = `
+        <div class="socket-header">
+          <span>
+            ${socket.name}
+            ${socket.tempAlert ? '<span class="alert">⚠</span>' : ''}
+          </span>
+          <span class="${socket.status ? 'active' : 'inactive'}">
+            ${socket.status ? 'Active' : 'Inactive'}
+          </span>
+        </div>
+
+        <div class="watts">
+          ⚡ ${socket.watts} W
+        </div>
+
+        <button class="toggle-btn ${socket.status ? 'toggle-on' : 'toggle-off'}">
+          ${socket.status ? 'Turn OFF' : 'Turn ON'}
+        </button>
+
+        <div class="schedule">
+          <i data-feather="clock"></i> Schedule enabled
+        </div>
+      `;
+
+      card.querySelector("button").onclick = () => toggleSocket(socket.id);
+      container.appendChild(card);
+    });
+
+    feather.replace();
+    updateChart();
+  }
+
+  function toggleSocket(id) {
+    const socket = sockets.find(s => s.id === id);
+    socket.status = !socket.status;
+    socket.watts = socket.status ? Math.floor(Math.random() * 200 + 40) : 0;
+    renderSockets();
+  }
+
+  // Chart
+  const ctx = document.getElementById("usageChart").getContext("2d");
+  const chart = new Chart(ctx, {
+    type: "line",
+    data: {
+      labels: sockets.map(s => s.name),
+      datasets: [{
+        label: "Live Power Usage (W)",
+        data: sockets.map(s => s.watts),
+        borderColor: "#34d399",
+        backgroundColor: "rgba(52,211,153,0.2)",
+        fill: true,
+        tension: 0.4
+      }]
+    },
+    options: {
+      plugins: {
+        legend: { labels: { color: "white" } }
+      },
+      scales: {
+        x: { ticks: { color: "white" } },
+        y: { ticks: { color: "white" } }
+      }
+    }
+  });
+
+  function updateChart() {
+    chart.data.datasets[0].data = sockets.map(s => s.watts);
+    chart.update();
+  }
+
+  document.getElementById("year").textContent = new Date().getFullYear();
+  renderSockets();
+</script>
+</body>
+</html>
